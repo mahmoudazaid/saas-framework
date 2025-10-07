@@ -16,6 +16,8 @@ lerna-debug.log*
 # Build outputs
 dist/
 build/
+**/dist/
+**/build/
 *.tgz
 *.tar.gz
 
@@ -33,6 +35,17 @@ apps/frontend/lib/l10n/app_localizations*.dart
 apps/frontend/lib/l10n/app_localizations_*.dart
 apps/frontend/lib/l10n/l10n.dart
 apps/frontend/lib/generated_plugin_registrant.dart
+
+# Android (Flutter)
+**/android/.gradle/
+**/android/.cxx/
+**/android/local.properties
+
+# iOS/macOS (Flutter/CocoaPods)
+**/ios/Pods/
+**/ios/.symlinks/
+**/ios/Flutter/Flutter.podspec
+**/macos/Pods/
 
 # IDE and editor files
 .vscode/
@@ -54,6 +67,9 @@ Thumbs.db
 logs/
 *.log
 
+# Lint/cache
+.eslintcache
+
 # Runtime data
 pids
 *.pid
@@ -63,6 +79,7 @@ pids
 # Coverage directory used by tools like istanbul
 coverage/
 .nyc_output/
+**/coverage/
 
 # Test outputs
 test-results/
