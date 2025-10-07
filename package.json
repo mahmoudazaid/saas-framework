@@ -1,0 +1,70 @@
+{
+  "name": "saas-framework",
+  "version": "1.0.0",
+  "description": "SaaS Framework - A comprehensive multi-tenant SaaS application framework with Flutter frontend and NestJS backend",
+  "private": true,
+  "workspaces": [
+    "apps/*"
+  ],
+  "scripts": {
+    "dev": "concurrently \"npm run dev:backend\" \"npm run dev:frontend\"",
+    "dev:backend": "cd apps/backend && npm run start:dev",
+    "dev:frontend": "cd apps/frontend && flutter run -d web-server --web-port 8080",
+    "build": "npm run build:backend && npm run build:frontend",
+    "build:backend": "cd apps/backend && npm run build",
+    "build:frontend": "cd apps/frontend && flutter build web",
+    "start:db": "docker-compose -f docker/docker-compose.yml up -d postgres",
+    "stop:db": "docker-compose -f docker/docker-compose.yml down",
+    "reset:db": "docker-compose -f docker/docker-compose.yml down -v && docker-compose -f docker/docker-compose.yml up -d postgres",
+    "start:dev": "docker-compose -f docker/docker-compose.yml --profile development up -d",
+    "stop:dev": "docker-compose -f docker/docker-compose.yml down",
+    "setup": "npm install && cd apps/backend && npm install && cd ../frontend && flutter pub get",
+    "clean": "npm run clean:backend && npm run clean:frontend",
+    "clean:backend": "cd apps/backend && rm -rf dist node_modules",
+    "clean:frontend": "cd apps/frontend && flutter clean",
+    "test:backend": "cd apps/backend && npm run test",
+    "test:frontend": "cd apps/frontend && flutter test",
+    "test:backend:cov": "cd apps/backend && npm run test:cov",
+    "test:frontend:cov": "cd apps/frontend && flutter test --coverage",
+    "test:backend:threshold": "cd apps/backend && npm run test:cov:threshold",
+    "test:frontend:threshold": "cd apps/frontend && flutter test --coverage --coverage-threshold=85",
+    "lint:backend": "cd apps/backend && npm run lint",
+    "check:framework:backend": "npx ts-node scripts/backend/check-framework-violations.ts",
+    "check:framework:frontend": "npx ts-node scripts/frontend/check-framework-violations.ts",
+    "check:framework:watch": "nodemon --watch apps/backend/src --ext ts,js --exec 'npm run check:framework'",
+    "check:framework:frontend:watch": "nodemon --watch apps/frontend/lib --ext dart --exec 'npm run check:framework:frontend'",
+    "check:all": "npm run check:framework:backend && npm run check:framework:frontend",
+    "check:hardcoded:frontend": "npx ts-node scripts/frontend/check-hardcoded-violations.ts",
+    "check:hardcoded:frontend:watch": "nodemon --watch apps/frontend/lib --ext dart --exec 'npm run check:hardcoded:frontend'",
+    "docs:build": "echo 'Building all documentation...' && npm run docs:serve",
+    "docs:serve": "echo 'Serving shared documentation at http://localhost:3000' && python3 -m http.server 3000 -d docs",
+    "docs:architecture": "echo 'Architecture documentation is available in docs/architecture/ directory'",
+    "docs:development": "echo 'Development documentation is available in docs/development/ directory'",
+    "docs:api": "echo 'API documentation is available in docs/api/ directory'"
+  },
+  "keywords": [
+    "saas",
+    "framework",
+    "multi-tenant",
+    "flutter",
+    "nestjs",
+    "fastify",
+    "postgresql",
+    "monorepo",
+    "typescript",
+    "dart",
+    "clean-architecture",
+    "enterprise",
+    "scalable"
+  ],
+  "author": "",
+  "license": "MIT",
+  "devDependencies": {
+    "concurrently": "^8.2.2",
+    "ts-node": "^10.9.2"
+  },
+  "engines": {
+    "node": ">=18.0.0",
+    "npm": ">=8.0.0"
+  }
+}

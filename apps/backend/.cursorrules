@@ -1,0 +1,621 @@
+# Backend Development Rules for Cursor AI
+
+> **🚨 CRITICAL: READ THIS FILE FIRST BEFORE ANY BACKEND TASK**
+> 
+> This file contains ALL backend-specific rules that MUST be followed.
+> This is a GENERIC FRAMEWORK - NO business logic should be implemented.
+> 
+> **ALWAYS CHECK THIS FILE BEFORE:**
+> - Writing any backend code
+> - Creating new entities or services
+> - Making architectural decisions
+> - Adding new modules or features
+> 
+> **ALSO READ:** `../../.cursorrules` for project-wide rules
+
+## ⚡ Quick Reference - Most Critical Backend Rules
+
+### 🚫 NEVER DO (Will Break Framework)
+- ❌ Add business logic to framework code
+- ❌ Use business-specific naming (gym, member, etc.)
+- ❌ Skip tenant context in tenant-aware entities
+- ❌ Create circular dependencies
+- ❌ Skip error handling or validation
+
+### ✅ ALWAYS DO (Essential)
+- ✅ Read both .cursorrules files before coding
+- ✅ Use generic terminology (Entity, Tenant, User)
+- ✅ Follow Clean Architecture layer separation
+- ✅ Add comprehensive JSDoc comments
+- ✅ Use LoggerService for all logging
+- ✅ Write tests for all new code
+
+## 🏗️ Architecture Rules
+
+### Clean Architecture Layers
+- Domain Layer: Pure business logic, no external dependencies
+- Application Layer: Use cases, DTOs, interfaces
+- Infrastructure Layer: Database, external services, configurations
+- Presentation Layer: Controllers, middleware, decorators, filters
+
+**File Organization:**
+- `src/core/entities/` → Domain entities
+- `src/core/repositories/` → Repository interfaces
+- `src/core/services/` → Domain services
+- `src/application/` → Use cases, DTOs, interfaces
+- `src/infrastructure/` → Database, external services
+- `src/presentation/` → Controllers, middleware, decorators
+- `src/common/` → Shared utilities, base classes
+
+**NEVER:**
+- Mix concerns between layers
+- Add NestJS dependencies in domain layer
+- Put business logic in controllers
+
+## 🔧 TypeScript Rules
+
+### Type Safety
+- Always specify return types
+- Use `unknown` instead of `any`
+- Use nullish coalescing (`??`) instead of logical OR (`||`)
+- Use bracket notation for process.env: `process.env['PORT']`
+- Use definite assignment assertion (`!`) for entity properties
+
+### Entity Rules
+```typescript
+// ✅ DO: Define entities like this
+export abstract class BaseEntity {
+  @PrimaryGeneratedColumn('uuid')
+  id!: string;
+  
+  @CreateDateColumn()
+  createdAt!: Date;
+  
+  @UpdateDateColumn()
+  updatedAt!: Date;
+  
+  @Column({ default: false })
+  isDeleted!: boolean;
+}
+```
+
+**NEVER:**
+- Use `any` type
+- Use optional properties without `!` for TypeORM entities
+- Use `process.env.PORT` (use bracket notation)
+
+## 🏢 Multi-tenancy Rules
+
+### Tenant Context
+- Use `tenantId` instead of `gymId`
+- Use `tenantSlug` instead of `gymSlug`
+- Use `CurrentTenant` decorator
+- Use `TenantEntity` for tenant-aware entities
+
+### Tenant Middleware
+```typescript
+// ✅ DO: Extract tenant from multiple sources
+const tenantSlug = (req.headers['x-tenant-slug'] as string) ?? 
+                  (req.params['tenantSlug'] as string) ?? 
+                  (req.query['tenantSlug'] as string);
+```
+
+**NEVER:**
+- Use domain-specific tenant names
+- Assume tenant context exists
+- Skip tenant validation
+
+## 📝 Logging Rules
+
+### Logger Usage
+```typescript
+// ✅ DO: Use the shared LoggerService
+constructor(private readonly logger: LoggerService) {}
+
+// Structured logging with context
+this.logger.log('User action performed', {
+  tenantId: 'tenant-123',
+  userId: 'user-456',
+  action: 'create_entity'
+});
+
+// Specialized logging methods
+this.logger.httpRequest('POST', '/api/entities', context);
+this.logger.securityEvent('Failed login attempt', context);
+this.logger.businessEvent('Entity created', context);
+```
+
+### Method Logging Decorators
+```typescript
+@LogMethod('Creating new entity')
+createEntity(data: unknown): unknown { ... }
+
+@LogError('Error in entity creation')
+createEntityWithError(data: unknown): unknown { ... }
+
+@LogDebug('Debugging entity validation')
+validateEntity(data: unknown): boolean { ... }
+```
+
+**NEVER:**
+- Use `console.log` in production code
+- Log sensitive information (passwords, tokens)
+- Create custom logger instances
+
+## 🗄️ Database Rules
+
+### Repository Pattern
+```typescript
+// ✅ DO: Extend BaseRepository
+export class EntityRepository extends BaseRepository<Entity> {
+  constructor(
+    @InjectRepository(Entity)
+    private readonly entityRepository: Repository<Entity>,
+  ) {
+    super(entityRepository);
+  }
+}
+```
+
+### Entity Relationships
+```typescript
+// ✅ DO: Use proper TypeORM decorators
+@ManyToOne(() => Tenant, tenant => tenant.entities)
+@JoinColumn({ name: 'tenant_id' })
+tenant: Tenant;
+```
+
+**NEVER:**
+- Access database directly from services
+- Put business logic in repositories
+- Use string-based relationships
+
+## 🔒 Security Rules
+
+### Input Validation
+```typescript
+// ✅ DO: Use DTOs with validation
+export class CreateEntityDto {
+  @IsString()
+  @IsNotEmpty()
+  name!: string;
+  
+  @IsUUID()
+  tenantId!: string;
+}
+```
+
+### Data Sanitization
+```typescript
+// ✅ DO: Sanitize sensitive data in logs
+const { password, token, secret, ...sanitized } = data;
+```
+
+**NEVER:**
+- Trust user input
+- Log passwords, tokens, or secrets
+- Skip validation in DTOs
+
+## 🧪 Testing Rules
+
+### Test Structure
+- `test/unit/` → Unit tests for services, utilities
+- `test/integration/` → Integration tests with database
+- `test/config/` → Test configuration files
+
+### Test Data
+```typescript
+// ✅ DO: Use generic test data
+export const testData = {
+  entities: {
+    valid: {
+      id: 'test-id-123',
+      name: 'Test Entity',
+      description: 'Test description'
+    }
+  },
+  tenants: {
+    valid: {
+      id: 'tenant-123',
+      slug: 'test-tenant',
+      name: 'Test Tenant'
+    }
+  }
+};
+```
+
+**NEVER:**
+- Use business-specific test data
+- Mix test types in same directory
+- Skip test coverage
+
+## 📦 Module Rules
+
+### Module Organization
+```typescript
+// ✅ DO: Create focused modules
+@Module({
+  imports: [TypeOrmModule.forFeature([Entity])],
+  controllers: [EntityController],
+  providers: [EntityService, EntityRepository],
+  exports: [EntityService],
+})
+export class EntityModule {}
+```
+
+### Dependency Injection
+```typescript
+// ✅ DO: Use proper DI patterns
+constructor(
+  private readonly entityService: EntityService,
+  private readonly logger: LoggerService,
+) {}
+```
+
+**NEVER:**
+- Create bloated modules
+- Create instances manually
+- Use circular dependencies
+
+## 🚀 Performance Rules
+
+### Database Queries
+```typescript
+// ✅ DO: Use efficient queries
+const entities = await this.repository.find({
+  relations: ['tenant'],
+  where: { tenantId: 'tenant-123' }
+});
+```
+
+### Caching
+```typescript
+// ✅ DO: Cache expensive operations
+@Cacheable('entity', 300) // 5 minutes
+async findById(id: string): Promise<Entity | null> {
+  return this.repository.findOne({ where: { id } });
+}
+```
+
+**NEVER:**
+- Use N+1 queries
+- Cache user-specific data globally
+- Skip query optimization
+
+## 🔧 Configuration Rules
+
+### Environment Variables
+```typescript
+// ✅ DO: Use configuration service
+constructor(private readonly configService: ConfigService) {}
+
+const port = this.configService.get('PORT', 3000);
+const dbHost = this.configService.get('DB_HOST', 'localhost');
+```
+
+### Error Handling
+```typescript
+// ✅ DO: Use proper error handling
+try {
+  const result = await this.entityService.create(data);
+  return result;
+} catch (error) {
+  this.logger.error('Failed to create entity', error, { data });
+  throw new BusinessException('Entity creation failed');
+}
+```
+
+**NEVER:**
+- Access process.env directly in services
+- Swallow errors silently
+- Expose internal errors to users
+
+## 📚 Backend Documentation Rules
+
+### Backend-Specific Documentation Structure
+```
+apps/backend/docs/
+├── backend-documentation-overview.md  # Backend documentation overview
+├── architecture/                      # Backend-specific architecture
+│   ├── clean-architecture.md
+│   ├── module-structure.md
+│   └── multi-tenancy.md
+├── development/                       # Backend setup guides
+│   └── setup.md
+├── testing/                           # Backend testing guides
+│   └── testing-guide.md
+├── database/                          # Backend database documentation
+│   ├── entities/                      # Entity specifications
+│   ├── relationships/                 # Table relationships
+│   ├── migrations/                    # Migration guidelines
+│   └── performance/                   # Database optimization
+└── api/                              # Backend API documentation
+    ├── endpoints/                    # Individual endpoint files
+    │   ├── entity-endpoints.md
+    │   └── health-endpoints.md
+    ├── error-handling.md
+    └── usage-examples.md
+```
+
+### Backend Documentation Content Rules
+- **Document all framework aspects** - Every service, controller, module
+- **Generic examples** - No business-specific logic in docs
+- **Multi-tenant patterns** - Document tenant-aware implementations
+- **Testing strategies** - Include backend-specific testing approaches
+- **API endpoints** - Document all available endpoints with examples
+- **Error handling** - Document error patterns and responses
+
+### Backend Database Documentation Rules
+- **Entity Documentation** - Document all TypeORM entities with field specifications
+- **Relationship Documentation** - Document foreign keys, constraints, and relationships
+- **Migration Guidelines** - Document migration best practices and troubleshooting
+- **Performance Documentation** - Document indexing strategies and query optimization
+- **Multi-tenancy Database** - Document tenant isolation and data segregation patterns
+- **TypeORM Configuration** - Document entity decorators and configuration options
+- **Query Patterns** - Document common database operation patterns
+- **Database Security** - Document data protection and access control measures
+
+### Backend Code Documentation
+```typescript
+// ✅ DO: Document complex business logic with clear comments
+/**
+ * Creates a new entity with tenant validation
+ * @param data - Entity data
+ * @param tenantId - Tenant context
+ * @returns Created entity
+ */
+async createEntity(data: CreateEntityDto, tenantId: string): Promise<Entity> {
+  // Validate tenant context before creating entity
+  const tenant = await this.validateTenant(tenantId);
+  
+  // Check tenant slot limits
+  if (tenant.usedSlots >= tenant.maxSlots) {
+    throw new BusinessException('Tenant slot limit exceeded');
+  }
+  
+  // Implementation
+}
+
+// ✅ DO: Document complex algorithms
+// Use binary search for efficient lookup in sorted array
+const index = this.binarySearch(sortedArray, target);
+
+// ✅ DO: Explain business rules
+// Only allow deletion if entity is not referenced by other entities
+if (await this.hasReferences(entityId)) {
+  throw new BusinessException('Cannot delete referenced entity');
+}
+```
+
+### Backend API Documentation
+```typescript
+// ✅ DO: Use comprehensive API documentation
+@ApiOperation({ 
+  summary: 'Create new entity',
+  description: 'Creates a new entity within the specified tenant context'
+})
+@ApiResponse({ 
+  status: 201, 
+  description: 'Entity created successfully',
+  type: Entity
+})
+@ApiResponse({ 
+  status: 400, 
+  description: 'Validation failed',
+  type: ErrorResponseDto
+})
+@Post()
+async create(@Body() createEntityDto: CreateEntityDto): Promise<Entity> {
+  // Implementation
+}
+```
+
+### Backend Documentation Cross-References
+- **Link to shared docs** for general concepts
+- **Link to other backend docs** for implementation details
+- **Use relative paths** for internal links
+- **Group links by category** (Backend vs Shared)
+
+### Backend Documentation Examples
+- **Use TypeScript** for all code examples
+- **Include both success and error cases**
+- **Provide complete, runnable examples**
+- **Use generic entity names** (Entity, Tenant, User)
+
+### Backend Documentation Quality
+- **All links work** and point to correct files
+- **Code examples run** and are tested
+- **Cross-references updated** when files move
+- **Consistent formatting** across all docs
+- **No broken references** to non-existent files
+
+### Backend Documentation Approach (Post-JSDoc)
+- **Keep JSDoc comments** for complex methods (they're still valuable)
+- **Use inline comments** for complex logic and business rules
+- **Document algorithms** and performance considerations
+- **Explain business logic** and validation rules
+- **Use clear, concise comments** that add value
+
+### Backend Database Documentation Examples
+```typescript
+// ✅ DO: Document entity relationships clearly
+/**
+ * TenantEntity - Base class for all multi-tenant entities
+ * 
+ * Provides tenant isolation and context for all tenant-aware entities.
+ * All entities extending this class must include tenantId and tenantSlug.
+ * 
+ * @example
+ * @Entity('sample_entities')
+ * export class SampleEntity extends TenantEntity {
+ *   @Column()
+ *   name: string;
+ * }
+ */
+export abstract class TenantEntity extends BaseEntity {
+  @Column()
+  tenantId: string;
+
+  @Column()
+  tenantSlug: string;
+
+  @ManyToOne(() => Tenant)
+  @JoinColumn({ name: 'tenantId' })
+  tenant: Tenant;
+}
+
+// ✅ DO: Document complex database operations
+/**
+ * Creates entity with tenant validation and audit trail
+ * 
+ * @param data - Entity creation data
+ * @param tenantId - Tenant context for isolation
+ * @returns Created entity with tenant context
+ */
+async createEntity(data: CreateEntityDto, tenantId: string): Promise<Entity> {
+  // Validate tenant exists and is active
+  const tenant = await this.validateTenant(tenantId);
+  
+  // Check tenant limits before creation
+  await this.checkTenantLimits(tenantId);
+  
+  // Create entity with tenant context
+  const entity = this.entityRepository.create({
+    ...data,
+    tenantId,
+    tenantSlug: tenant.slug
+  });
+  
+  return await this.entityRepository.save(entity);
+}
+
+// ✅ DO: Document migration purposes
+/**
+ * Migration: AddTenantIndexes
+ * 
+ * Purpose: Add performance indexes for tenant-scoped queries
+ * Impact: Improves query performance for multi-tenant operations
+ * Rollback: Safe - only adds indexes, no data changes
+ */
+export class AddTenantIndexes1234567890 implements MigrationInterface {
+  public async up(queryRunner: QueryRunner): Promise<void> {
+    // Add tenant-specific indexes for performance
+    await queryRunner.createIndex('sample_entities', new Index('idx_sample_entities_tenant_id', ['tenant_id']));
+    await queryRunner.createIndex('sample_entities', new Index('idx_sample_entities_tenant_slug', ['tenant_slug']));
+  }
+}
+```
+
+**NEVER:**
+- Skip documentation for public methods
+- Use business-specific examples in framework docs
+- Skip response examples in API docs
+- Create documentation without cross-references
+- Remove all comments just because JSDoc is gone
+- Skip tenant context in database documentation
+- Document business logic instead of framework patterns
+
+## 🎯 Generic Framework Rules
+
+### Reusability
+- Use generic entity names (Entity, Tenant)
+- Use generic service names (EntityService, TenantService)
+- Use generic module names (EntityModule, TenantModule)
+- Use generic DTO names (EntityDto, TenantDto)
+
+### Extensibility
+```typescript
+// ✅ DO: Design for extension
+export abstract class BaseService<T extends BaseEntity> {
+  constructor(protected readonly repository: BaseRepository<T>) {}
+  
+  // Generic methods that can be extended
+}
+```
+
+**NEVER:**
+- Use business-specific names
+- Create rigid, non-extensible code
+- Hardcode business rules
+
+## 🚨 Critical Rules Summary
+
+### MUST DO:
+1. ✅ Follow Clean Architecture layers
+2. ✅ Use strict TypeScript settings
+3. ✅ Use shared LoggerService for all logging
+4. ✅ Validate all inputs with DTOs
+5. ✅ Use generic terminology (tenant, entity)
+6. ✅ Write tests for all new code
+7. ✅ Use proper error handling
+8. ✅ Keep everything generic and reusable
+
+### NEVER DO:
+1. ❌ Use `any` type
+2. ❌ Mix architectural layers
+3. ❌ Use `console.log` in production
+4. ❌ Skip input validation
+5. ❌ Use business-specific names
+6. ❌ Skip error handling
+7. ❌ Create circular dependencies
+8. ❌ Hardcode configuration values
+
+## 🔄 Adding New Rules
+
+When adding new rules to this file:
+1. Add them to the appropriate section
+2. Include both positive examples (✅ DO) and negative examples (❌ DON'T)
+3. Update the Critical Rules Summary if needed
+4. Test the rules with actual code examples
+5. Keep the rules generic and framework-agnostic
+
+## 📝 File Header Rule
+
+Always add this header to new TypeScript files:
+```typescript
+// src/path/to/file.ts
+```
+
+This helps with debugging and file identification.
+
+## 🚨 Backend Rule Enforcement
+
+### Pre-Development Checklist
+- [ ] **Read both .cursorrules files** (root + backend)
+- [ ] **Verify task aligns** with generic framework principles
+- [ ] **Check if business logic** is being added (should be avoided)
+- [ ] **Confirm file placement** follows Clean Architecture layers
+- [ ] **Validate naming conventions** (kebab-case, descriptive)
+
+### During Development
+- [ ] **Follow Clean Architecture** layer separation
+- [ ] **Use generic terminology** (Entity, Tenant, User)
+- [ ] **Add comprehensive JSDoc** comments for complex methods
+- [ ] **Implement proper error handling** with custom exceptions
+- [ ] **Use LoggerService** for all logging operations
+- [ ] **Follow multi-tenancy** patterns (tenantId, tenantSlug)
+
+### Post-Development Verification
+- [ ] **No business-specific logic** in framework code
+- [ ] **All entities extend** BaseEntity or TenantEntity
+- [ ] **Proper validation** with DTOs and decorators
+- [ ] **Comprehensive tests** written and passing
+- [ ] **Documentation updated** if new features added
+- [ ] **Linting passes** without errors
+
+### Critical Rule Violations to Avoid
+- ❌ **NEVER add business logic** to framework code
+- ❌ **NEVER use business-specific naming** (gym, member, etc.)
+- ❌ **NEVER skip tenant context** in tenant-aware entities
+- ❌ **NEVER create circular dependencies**
+- ❌ **NEVER skip error handling** or validation
+- ❌ **NEVER commit secrets** or sensitive data
+- ❌ **NEVER skip logging** in important operations
+
+### Enforcement Actions
+If rules are violated:
+1. **Stop immediately** and review .cursorrules
+2. **Revert changes** that violate framework principles
+3. **Refactor code** to follow generic patterns
+4. **Update documentation** to reflect changes
+5. **Add tests** to prevent future violations

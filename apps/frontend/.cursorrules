@@ -1,0 +1,559 @@
+# Flutter Frontend Framework - Cursor AI Rules
+
+> **🚨 CRITICAL: READ THIS FILE FIRST BEFORE ANY TASK**
+> 
+> This file contains ALL Flutter framework rules that MUST be followed.
+> Failure to follow these rules will result in code that violates Flutter best practices.
+
+**ALWAYS CHECK THIS FILE BEFORE:**
+- Creating any new Flutter files
+- Making architectural decisions
+- Writing Flutter-specific code
+- Adding new features or widgets
+
+## ⚡ Quick Reference - Most Critical Rules
+
+### 🚫 NEVER DO (Will Break Flutter Framework)
+- ❌ Use business-specific naming (use generic terms)
+- ❌ Mix platform concerns in shared code
+- ❌ Skip error handling in async operations
+- ❌ Use deprecated Flutter APIs
+- ❌ Skip widget testing
+- ❌ Hardcode platform-specific code
+
+### ✅ ALWAYS DO (Essential)
+- ✅ Follow Flutter best practices
+- ✅ Use generic, reusable terminology
+- ✅ Implement proper error handling
+- ✅ Write comprehensive tests
+- ✅ Use proper state management
+- ✅ Follow Material Design guidelines
+
+## 🏗️ Flutter Framework Architecture
+
+This is a **generic Flutter framework** designed for:
+- **Multi-platform**: Mobile (iOS/Android) + Web
+- **Multi-tenant**: Support multiple tenants
+- **Generic**: Reusable for any business domain
+- **Clean Architecture**: Domain, Application, Infrastructure, Presentation layers
+
+## 📁 Directory Structure Rules
+
+### Core Framework (`lib/core/`)
+- **Entities**: `lib/core/entities/` - Domain entities
+- **Constants**: `lib/core/constants/` - App constants
+- **Config**: `lib/core/config/` - App configuration
+- **Utils**: `lib/core/utils/` - Utility functions
+- **Error**: `lib/core/error/` - Error handling
+- **State**: `lib/core/state/` - State management
+- **Cache**: `lib/core/cache/` - Caching strategies
+- **Offline**: `lib/core/offline/` - Offline support
+
+### Features (`lib/features/`)
+- **Domain**: `lib/features/*/domain/` - Business logic
+- **Data**: `lib/features/*/data/` - Data layer
+- **Presentation**: `lib/features/*/presentation/` - UI layer
+
+### UI Framework (`lib/ui/`)
+- **Styles**: `lib/ui/styles/` - Design tokens
+- **Widgets**: `lib/ui/widgets/` - Reusable widgets
+- **Themes**: `lib/ui/themes/` - App themes
+
+### Localization (`lib/l10n/`)
+- **ARB Files**: `lib/l10n/arb/` - Localization files
+- **Generated**: `lib/l10n/arb/` - Generated localization
+
+## 🎯 Generic Framework Rules
+
+### Reusability
+- Keep everything generic and reusable
+- Use generic terminology (Entity, Tenant, User)
+- Avoid business-specific naming
+- Design for multiple domains (e-commerce, healthcare, education, etc.)
+
+### Multi-tenancy
+- All entities should support multi-tenancy
+- Use `tenantId` for tenant context
+- Use `tenantSlug` for tenant identification
+- Generic tenant management
+
+### Technology Stack
+- **Frontend**: Flutter + Dart
+- **State Management**: Riverpod
+- **Navigation**: GoRouter
+- **Localization**: Flutter Intl
+- **Testing**: Flutter Test + Mocktail
+- **Caching**: SharedPreferences + Memory
+- **HTTP**: http package
+
+## 📝 File Naming Rules
+
+### Flutter Files
+- Use snake_case for files: `user_service.dart`
+- Use PascalCase for classes: `UserService`
+- Use camelCase for methods: `createUser()`
+- Use kebab-case for directories: `user-management/`
+
+### Test Files
+- Use snake_case: `user_service_test.dart`
+- Place in `test/` directory
+- Mirror lib structure: `test/features/user/domain/`
+
+## 🔧 Development Workflow
+
+### Flutter Development
+1. Follow Clean Architecture layers
+2. Use Riverpod for state management
+3. Write tests for all new code
+4. Use generic terminology
+5. Validate all inputs with DTOs
+
+### State Management
+1. Use `StateNotifier` for complex state
+2. Use `Provider` for simple state
+3. Use `FutureProvider` for async data
+4. Use `StreamProvider` for streams
+5. Implement proper error handling
+
+### UI Development
+1. Follow Material Design guidelines
+2. Use generic, reusable widgets
+3. Support both mobile and web
+4. Implement proper responsive design
+5. Use consistent design tokens
+
+## 🚨 Critical Rules
+
+### MUST DO:
+1. ✅ Keep everything generic and reusable
+2. ✅ Use multi-tenant architecture
+3. ✅ Follow Flutter best practices
+4. ✅ Write tests for all new code
+5. ✅ Use consistent naming conventions
+6. ✅ Document complex logic
+7. ✅ Handle errors properly
+8. ✅ Use proper logging
+9. ✅ Follow security best practices
+10. ✅ Monitor and optimize performance
+
+### NEVER DO:
+1. ❌ Use business-specific naming
+2. ❌ Mix platform concerns
+3. ❌ Skip testing
+4. ❌ Hardcode configuration
+5. ❌ Skip error handling
+6. ❌ Use platform-specific code in shared areas
+7. ❌ Skip documentation
+8. ❌ Create circular dependencies
+9. ❌ Commit secrets to version control
+10. ❌ Ignore performance bottlenecks
+
+## 🧪 Testing Rules
+
+### Test Organization
+- **Unit Tests**: Test individual functions/classes
+- **Widget Tests**: Test UI components
+- **Integration Tests**: Test feature workflows
+- **No E2E Tests**: Framework doesn't use E2E tests
+
+### Test Tagging
+- Use comprehensive test tags
+- Tag by category: `unit`, `integration`, `widget`
+- Tag by type: `smoke`, `regression`, `performance`
+- Tag by priority: `critical`, `high`, `medium`, `low`
+- Tag by scope: `core`, `feature`, `ui`, `api`
+
+### Test Execution
+```bash
+# Run specific test types
+flutter test --tags unit
+flutter test --tags smoke
+flutter test --tags "feature,fast"
+
+# Exclude specific tests
+flutter test --exclude-tags slow
+flutter test --exclude-tags network
+```
+
+## 🎨 UI/UX Rules
+
+### Design System
+- Use consistent design tokens
+- Follow Material Design guidelines
+- Support both light and dark themes
+- Implement proper responsive design
+- Use generic, reusable components
+
+### Widget Development
+- Create generic, reusable widgets
+- Use proper widget composition
+- Implement proper state management
+- Handle loading and error states
+- Support accessibility
+
+### Navigation
+- Use GoRouter for navigation
+- Implement proper route guards
+- Handle deep linking
+- Support both mobile and web navigation
+
+## 🔒 Security Rules
+
+### Data Protection
+- Never hardcode sensitive data
+- Use secure storage for sensitive information
+- Implement proper input validation
+- Sanitize user inputs
+- Use HTTPS for all network requests
+
+### Authentication
+- Implement proper authentication flow
+- Use secure token storage
+- Handle token refresh
+- Implement proper logout
+- Support biometric authentication
+
+### Authorization
+- Implement proper authorization checks
+- Use role-based access control
+- Validate permissions on every action
+- Handle unauthorized access gracefully
+
+## 🚀 Performance Rules
+
+### Flutter Performance
+- Use `const` constructors where possible
+- Implement proper widget rebuilding
+- Use `ListView.builder` for large lists
+- Optimize image loading and caching
+- Implement proper memory management
+
+### State Management Performance
+- Use `Provider` for simple state
+- Use `StateNotifier` for complex state
+- Avoid unnecessary rebuilds
+- Implement proper caching
+- Use `Consumer` widgets efficiently
+
+### Network Performance
+- Implement proper caching
+- Use pagination for large datasets
+- Implement offline support
+- Handle network errors gracefully
+- Use proper loading states
+
+## 📱 Platform Support Rules
+
+### Multi-Platform
+- Support iOS, Android, and Web
+- Use platform-agnostic code
+- Handle platform-specific features
+- Test on all target platforms
+- Use responsive design
+
+### Platform-Specific Code
+- Use `Platform.isIOS`, `Platform.isAndroid`, `kIsWeb`
+- Implement platform-specific UI when needed
+- Handle platform-specific permissions
+- Use platform-specific packages when necessary
+
+## 🔄 State Management Rules
+
+### Riverpod Patterns
+- Use `StateNotifier` for complex state
+- Use `Provider` for simple state
+- Use `FutureProvider` for async data
+- Use `StreamProvider` for streams
+- Implement proper error handling
+
+### State Organization
+- Keep state close to where it's used
+- Use proper state composition
+- Implement proper state persistence
+- Handle state synchronization
+- Use proper state validation
+
+## 🎯 Error Handling Rules
+
+### Error Types
+- Use `FrameworkException` for framework errors
+- Use `ValidationException` for validation errors
+- Use `NetworkException` for network errors
+- Use `AuthenticationException` for auth errors
+- Use `EntityNotFoundException` for missing entities
+
+### Error Handling
+- Implement proper error boundaries
+- Show user-friendly error messages
+- Log errors for debugging
+- Handle errors gracefully
+- Implement proper retry mechanisms
+
+## 📊 Logging Rules
+
+### Logging Levels
+- Use appropriate log levels
+- Log important events
+- Log errors and exceptions
+- Log performance metrics
+- Log user actions
+
+### Logging Implementation
+- Use consistent logging format
+- Include relevant context
+- Avoid logging sensitive data
+- Implement proper log rotation
+- Use structured logging
+
+## 🔧 Development Tools Rules
+
+### Code Quality
+- Use `flutter analyze` regularly
+- Fix all analysis issues
+- Use proper code formatting
+- Implement proper linting rules
+- Use consistent code style
+
+### Testing Tools
+- Use `flutter test` for unit tests
+- Use `flutter test --tags` for tagged tests
+- Use `flutter test --coverage` for coverage
+- Use `flutter test --reporter` for reporting
+- Use `flutter test --concurrency` for parallel tests
+
+### Build Tools
+- Use `flutter build` for production builds
+- Use `flutter build web` for web builds
+- Use `flutter build apk` for Android builds
+- Use `flutter build ios` for iOS builds
+- Use proper build configurations
+
+## 📚 Documentation Rules
+
+### File Structure Rules
+- **ONLY ONE README.md** at project root level
+- **NO multiple README files** in subdirectories
+- **Use descriptive filenames** instead of numbered files
+- **Link everything** from the main README.md
+
+### File Naming
+- **Use kebab-case** for file names (`clean-architecture.md`)
+- **Use descriptive names** (`error-handling.md` not `handling-01.md`)
+- **NO numbering** in documentation files
+- **Group by topic/folder** rather than numbers
+
+### Directory Organization
+- **Shared docs** (`docs/`) for project-wide concepts
+- **App-specific docs** (`apps/frontend/docs/`) for Flutter-specific implementation
+- **Backend docs** (`apps/backend/docs/`) for backend-specific implementation
+- **Cross-references** between shared and app docs
+- **Single source of truth** (main README.md)
+
+### Content Rules
+- **Link between shared and app-specific docs**
+- **Use relative paths** for internal links
+- **Group links by category** (Architecture vs Development vs Testing)
+- **Keep links updated** when moving files
+- **Maintain cross-references** between all documentation levels
+
+### Content Structure
+- **Start with clear title and description**
+- **Use consistent markdown formatting**
+- **Include practical examples**
+- **Cross-reference related documentation**
+- **Use emojis for visual organization**
+
+### Code Examples
+- **Use Dart** for Flutter examples
+- **Include both success and error cases**
+- **Provide complete, runnable examples**
+- **Use consistent code formatting**
+
+### Documentation Standards
+- **Update after adding new features**
+- **Update when changing Flutter patterns**
+- **Update after architectural changes**
+- **Test all code examples**
+- **Keep cross-references updated**
+- **Update when moving or renaming files**
+- **Verify all links work** after changes
+- **Maintain consistent structure** across all docs
+
+### Documentation Maintenance
+- **Regular review** of documentation accuracy
+- **Update examples** when code changes
+- **Remove outdated** information
+- **Add new sections** as framework evolves
+- **Keep cross-references** synchronized
+
+### Technology Rules
+- **Markdown** as primary documentation format
+- **Manual documentation** approach (no auto-generation)
+- **Dart comments** in code for developer experience
+- **Comprehensive coverage** of all framework aspects
+- **Focus on Markdown docs** for comprehensive documentation
+
+### Documentation Structure
+```
+Project Root
+├── README.md (ONLY README.md allowed)
+├── docs/ (Shared documentation)
+│   ├── architecture/
+│   ├── development/
+│   └── api/
+└── apps/
+    ├── backend/
+    │   └── docs/
+    │       ├── backend-documentation-overview.md
+    │       ├── architecture/
+    │       ├── development/
+    │       ├── testing/
+    │       └── api/
+    └── frontend/
+        └── docs/
+            ├── frontend-documentation-overview.md
+            ├── architecture/
+            ├── development/
+            ├── testing/
+            ├── ui/
+            └── api/
+```
+
+### Naming Conventions
+- **Use descriptive filenames** (`frontend-documentation-overview.md`)
+- **NO numbering** in documentation files
+- **Use kebab-case** for all documentation files
+- **Group by topic/folder** rather than numbers
+- **Avoid generic names** like "index" or "guide"
+
+### Quality Checklist
+- **All links work** and point to correct files
+- **Code examples run** and are tested
+- **Cross-references updated** when files move
+- **Consistent formatting** across all docs
+- **No broken references** to non-existent files
+- **Single README.md** at project root only
+
+### Flutter-Specific Documentation
+- **Document Flutter patterns** and best practices
+- **Include Riverpod state management** examples
+- **Document GoRouter navigation** patterns
+- **Include Material Design** implementation guides
+- **Document testing strategies** for Flutter
+- **Include performance optimization** techniques
+- **Document multi-platform** considerations
+- **Include localization** implementation guides
+
+### Code Documentation
+- **Document all public APIs** with Dart comments
+- **Use proper Dart documentation** comments
+- **Document complex Flutter logic**
+- **Include usage examples** for widgets and services
+- **Keep documentation updated** with code changes
+
+### Architecture Documentation
+- **Document Flutter architectural decisions**
+- **Document Clean Architecture** implementation
+- **Document state management** patterns
+- **Document error handling** strategies
+- **Document testing strategies** for Flutter
+
+## 🚨 Rule Enforcement
+
+### Pre-Action Validation
+- **ALWAYS read this file** before starting any Flutter task
+- **Check rule applicability** before making changes
+- **Verify file locations** match Flutter structure
+- **Confirm naming conventions** before creating files
+
+### During Development
+- **Reference rules** when making decisions
+- **Stop and check** if unsure about rule compliance
+- **Ask for clarification** rather than assume
+- **Follow the "answer before act"** pattern for complex changes
+
+### Post-Action Verification
+- **Verify no business-specific naming** violations
+- **Check file naming** follows snake_case convention
+- **Ensure proper testing** is implemented
+- **Validate error handling** is comprehensive
+
+### Rule Violation Prevention
+- **NEVER use business-specific naming**
+- **NEVER skip error handling**
+- **NEVER skip testing**
+- **NEVER hardcode configuration**
+- **NEVER ignore Flutter best practices**
+- **NEVER create multiple README.md files**
+- **NEVER use numbered documentation files**
+- **NEVER skip documentation updates**
+- **NEVER ignore .cursorrules files**
+
+### Documentation Rule Violation Actions
+If documentation work violates rules:
+1. **STOP immediately** and read this file
+2. **Review the violation** against documentation-specific rules
+3. **Refactor documentation** to follow naming conventions
+4. **Use descriptive filenames** instead of numbered files
+5. **Add proper cross-references** and links
+6. **Update main README.md** with new documentation
+
+### Documentation Work Enforcement
+When working on documentation:
+- [ ] **MUST read** this file FIRST
+- [ ] **MUST follow** kebab-case naming convention
+- [ ] **MUST use** descriptive filenames
+- [ ] **MUST avoid** numbered files
+- [ ] **MUST implement** proper cross-references
+- [ ] **MUST add** links to main README.md
+- [ ] **MUST maintain** consistent structure
+- [ ] **MUST test** all code examples
+- [ ] **MUST update** cross-references when moving files
+
+## 🎯 Flutter Framework Goals
+
+1. **Generic Framework**: Reusable for any business domain
+2. **Multi-tenant**: Support multiple tenants
+3. **Multi-platform**: Support mobile and web
+4. **Scalable**: Handle growth and complexity
+5. **Maintainable**: Clean, documented, tested code
+6. **Production-ready**: Robust, secure, performant
+7. **Developer-friendly**: Easy to use and extend
+
+## 🔄 Adding New Rules
+
+When adding new rules:
+1. Determine if it's Flutter-specific or general
+2. Add Flutter-specific rules to this file
+3. Add general rules to root `.cursorrules`
+4. Update relevant sections
+5. Test with actual Flutter code examples
+6. Keep rules generic and reusable
+
+## 🚨 Flutter-Specific Violations
+
+If Flutter work violates rules:
+1. **STOP immediately** and read this file
+2. **Review the violation** against Flutter-specific rules
+3. **Refactor code** to follow Flutter best practices
+4. **Use generic terminology** instead of business-specific terms
+5. **Add proper error handling** and state management
+6. **Write comprehensive tests** for new functionality
+
+## 📋 Flutter Work Checklist
+
+Before completing any Flutter task, verify:
+- [ ] All Flutter-specific rules followed
+- [ ] Generic framework principles maintained
+- [ ] No business-specific naming violations
+- [ ] File naming follows snake_case convention
+- [ ] Proper testing implemented
+- [ ] Error handling comprehensive
+- [ ] State management follows Riverpod patterns
+- [ ] UI follows Material Design guidelines
+- [ ] Multi-platform support maintained
+- [ ] Performance optimized
+- [ ] Documentation follows naming conventions
+- [ ] No README.md violations created
+- [ ] Cross-references updated when needed
+- [ ] Links verified and working

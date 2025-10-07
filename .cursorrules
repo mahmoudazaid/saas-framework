@@ -1,0 +1,531 @@
+# SaaS Framework Monorepo - Cursor AI Rules
+
+> **🚨 CRITICAL: READ THIS FILE FIRST BEFORE ANY TASK**
+> 
+> This file contains ALL project-wide rules that MUST be followed.
+> Failure to follow these rules will result in code that violates project standards.
+> 
+> **ALWAYS CHECK THIS FILE BEFORE:**
+> - Creating any new files
+> - Making architectural decisions
+> - Writing documentation
+> - Adding new features
+> 
+> **ALWAYS CHECK PLATFORM-SPECIFIC .cursorrules:**
+> - `apps/backend/.cursorrules` - When working on backend features or bug fixes
+> - `apps/frontend/.cursorrules` - When working on frontend features or bug fixes
+
+## 📑 Table of Contents
+
+1. [Quick Reference](#-quick-reference---most-critical-rules)
+2. [Project Structure](#-project-structure)
+3. [Core Framework Principles](#-core-framework-principles)
+4. [Naming Conventions](#-naming-conventions)
+5. [Development Workflow](#-development-workflow)
+6. [Documentation Standards](#-documentation-standards)
+7. [Quality & Best Practices](#-quality--best-practices)
+8. [Rule Enforcement](#-rule-enforcement)
+9. [Platform-Specific Rules](#-platform-specific-rules)
+10. [Project Goals](#-project-goals)
+
+---
+
+## ⚡ Quick Reference - Most Critical Rules
+
+### 🚫 NEVER DO (Will Break Project)
+
+**Framework & Architecture:**
+- ❌ Add business logic to framework code
+- ❌ Use business-specific naming
+- ❌ Skip reading .cursorrules before tasks
+- ❌ Create circular dependencies
+- ❌ Mix platform concerns
+
+**Documentation:**
+- ❌ Create multiple README.md files (only one at project root)
+- ❌ Use numbered documentation files (use descriptive names)
+
+**Database:**
+- ❌ Use anything other than snake_case for database column names
+
+**Flutter/Frontend:**
+- ❌ Create StatefulWidget without dispose() method
+- ❌ Use null assertion operators (!) on AppLocalizations.of(context)
+- ❌ Call setState() during build phase
+- ❌ Conditional rendering without ValueKey
+- ❌ Use hardcoded text instead of LocalizationHelper
+- ❌ Use Scaffold outside MaterialApp context
+- ❌ Call notifier methods on state objects
+
+**Security & Configuration:**
+- ❌ Commit secrets to version control
+- ❌ Hardcode configuration
+- ❌ Skip error handling or validation
+
+### ✅ ALWAYS DO (Essential)
+
+**Before Starting:**
+- ✅ Read .cursorrules before starting any task
+- ✅ Read platform-specific .cursorrules when working on backend/frontend
+
+**Coding Standards:**
+- ✅ Keep everything generic and reusable
+- ✅ Use multi-tenant architecture
+- ✅ Follow platform-specific best practices
+- ✅ Write tests for all new code
+- ✅ Handle errors properly
+- ✅ Use proper logging
+
+**File & Documentation:**
+- ✅ Use kebab-case for backend files, snake_case for frontend files
+- ✅ Place docs in correct directories (shared vs app-specific)
+- ✅ Update cross-references when moving files
+
+**Database:**
+- ✅ Use snake_case for all database column names
+
+**Flutter/Frontend:**
+- ✅ Implement dispose() method in all StatefulWidgets
+- ✅ Use LocalizationHelper.getText() for all user-facing text
+- ✅ Use ValueKey for conditional rendering
+- ✅ Use WidgetsBinding.instance.addPostFrameCallback() for deferred setState
+- ✅ Use Container instead of Scaffold in error widgets
+- ✅ Define methods in state classes, not just notifiers
+
+---
+
+## 🏗️ Project Structure
+
+This is a **monorepo** containing:
+
+```
+saas-framework/
+├── apps/
+│   ├── backend/          # NestJS API backend
+│   └── frontend/         # Flutter mobile/web frontend
+├── packages/             # Shared packages (if any)
+├── docs/                 # Shared documentation
+├── docker/               # Docker configuration
+└── scripts/              # Build and utility scripts
+```
+
+### Directory Responsibilities
+
+**Backend (`apps/backend/`)**
+- Clean Architecture (Domain, Application, Infrastructure, Presentation)
+- TypeScript with strict settings
+- Generic, reusable framework (no business-specific logic)
+- See `apps/backend/.cursorrules` for detailed rules
+
+**Frontend (`apps/frontend/`)**
+- Flutter/Dart application
+- Flutter best practices and widget tests
+- Platform-agnostic design (mobile + web)
+- See `apps/frontend/.cursorrules` for detailed rules
+
+**Root Level**
+- Project-wide configuration files
+- Docker setup and CI/CD configuration
+- Shared documentation (architecture, database, guides)
+
+### Technology Stack
+
+- **Backend**: NestJS + Fastify + TypeORM + PostgreSQL
+- **Frontend**: Flutter + Dart
+- **Database**: PostgreSQL
+- **Containerization**: Docker
+- **Testing**: Jest (backend) + Flutter Test (frontend)
+
+---
+
+## 🎯 Core Framework Principles
+
+### 1. Generic & Reusable
+- Keep everything generic and reusable
+- Use generic terminology (Entity, Tenant, User)
+- Avoid business-specific naming
+- Design for multiple domains (e-commerce, healthcare, education, etc.)
+
+### 2. Multi-tenancy
+- All entities MUST support multi-tenancy
+- Use `tenantId` for tenant context
+- Use `tenantSlug` for tenant identification
+- Implement generic tenant management patterns
+
+### 3. Clean Architecture
+- **Backend**: Domain → Application → Infrastructure → Presentation
+- **Frontend**: Features → Core → UI → Data
+- Maintain clear separation of concerns
+- Keep business logic in appropriate layers
+
+---
+
+## 📝 Naming Conventions
+
+### Files & Directories
+
+| Type | Convention | Example |
+|------|-----------|---------|
+| Backend files | kebab-case | `user-service.ts` |
+| Frontend files | snake_case | `user_service.dart` |
+| Classes | PascalCase | `UserService` |
+| Methods | camelCase | `createUser()` |
+| Database columns | snake_case | `created_at` |
+| Documentation files | kebab-case | `clean-architecture.md` |
+
+### Code Elements
+
+**Backend (TypeScript):**
+- Add file path comment at top: `// src/path/to/file.ts`
+- Use PascalCase for classes, interfaces, types
+- Use camelCase for methods, variables, parameters
+- Use UPPER_SNAKE_CASE for constants
+
+**Frontend (Dart):**
+- Use PascalCase for classes, widgets
+- Use camelCase for methods, variables, properties
+- Use lowerCamelCase for private members: `_privateMember`
+
+**Database:**
+- Tables: snake_case (e.g., `user_profiles`)
+- Columns: snake_case (e.g., `created_at`, `tenant_id`)
+- Foreign keys: `{table}_id` (e.g., `user_id`, `tenant_id`)
+
+---
+
+## 🔧 Development Workflow
+
+### Backend Development
+1. **Read** `apps/backend/.cursorrules` FIRST
+2. **Follow** Clean Architecture layers
+3. **Use** shared LoggerService for logging
+4. **Write** tests for all new code
+5. **Use** generic terminology (Entity, Tenant, User)
+6. **Validate** all inputs with DTOs
+
+### Frontend Development
+1. **Read** `apps/frontend/.cursorrules` FIRST
+2. **Follow** Flutter best practices
+3. **Use** proper state management
+4. **Write** widget tests
+5. **Support** both mobile and web platforms
+6. **Use** generic UI components
+
+### Cross-Platform Development
+1. Keep **business logic** in backend
+2. Frontend handles **presentation** only
+3. Use **consistent API contracts**
+4. Maintain **generic terminology** across platforms
+5. Share **types/interfaces** when possible
+
+---
+
+## 📚 Documentation Standards
+
+### Structure & Organization
+
+**File Structure:**
+```
+Project Root
+├── README.md                    # ONLY README.md allowed (single source of truth)
+├── docs/                        # Shared documentation
+│   ├── architecture/            # Architecture patterns
+│   ├── development/             # Development guides
+│   ├── database/                # Database schema & entities
+│   └── guides/                  # General guides
+└── apps/
+    ├── backend/docs/            # Backend-specific docs
+    │   ├── backend-documentation-overview.md
+    │   ├── architecture/
+    │   ├── development/
+    │   ├── testing/
+    │   └── api/
+    └── frontend/docs/           # Frontend-specific docs
+        ├── frontend-documentation-overview.md
+        ├── architecture/
+        ├── development/
+        ├── testing/
+        └── ui/
+```
+
+**Database Documentation:**
+```
+docs/database/
+├── README.md                    # Database overview
+├── schema-overview.md           # High-level design
+├── entities/                    # Entity documentation
+├── relationships/               # Relationships & constraints
+├── migrations/                  # Migration history
+└── diagrams/                    # Visual diagrams (Mermaid)
+```
+
+### File Naming & Content Rules
+
+**Naming:**
+- ✅ Use kebab-case: `clean-architecture.md`
+- ✅ Use descriptive names: `entity-endpoints.md`
+- ❌ NO numbering: `endpoints-01.md`
+- ❌ Avoid generic names: `index.md`, `guide.md`
+
+**Content Guidelines:**
+- Start with clear title and description
+- Use consistent markdown formatting
+- Include practical, runnable code examples
+- Use TypeScript for backend examples
+- Include both success and error cases
+- Cross-reference related documentation
+- Use emojis for visual organization
+- Maintain relative paths for internal links
+
+### Documentation Requirements
+
+**When to Update:**
+- After adding new features
+- When changing API endpoints
+- After architectural changes
+- When moving or renaming files
+- After fixing bugs that affect documented behavior
+
+**What to Include:**
+- **Code**: JSDoc comments for developer experience
+- **Database**: Entity specs, relationships, migrations
+- **API**: Endpoints, request/response examples
+- **Architecture**: Patterns, principles, diagrams
+- **Testing**: Test strategies, examples
+
+**Quality Checklist:**
+- [ ] All links work and point to correct files
+- [ ] Code examples are tested and run successfully
+- [ ] Cross-references updated when files move
+- [ ] Consistent formatting across all docs
+- [ ] No broken references
+- [ ] Single README.md at project root only
+
+---
+
+## 🛡️ Quality & Best Practices
+
+### Security
+
+**Secrets & Configuration:**
+- ❌ NEVER commit secrets to version control
+- ✅ Use environment variables for sensitive data
+- ✅ Use .env files for local development
+- ✅ Rotate secrets regularly
+
+**Input & Output:**
+- ✅ Validate all user inputs at API boundaries
+- ✅ Use DTOs with validation decorators
+- ✅ Sanitize data before processing
+- ✅ Escape output to prevent injection attacks
+
+**Authentication & Authorization:**
+- ✅ Use JWT tokens for authentication
+- ✅ Implement proper authorization checks
+- ✅ Use HTTPS in production
+- ✅ Implement rate limiting to prevent abuse
+
+**Data Protection:**
+- ✅ Encrypt sensitive data at rest
+- ✅ Use secure communication (HTTPS/TLS)
+- ✅ Implement proper CORS policies
+- ✅ Log security events for monitoring
+- ❌ NEVER expose sensitive data in logs
+
+### Performance
+
+**Backend:**
+- Use database indexing for frequently queried fields
+- Implement caching for expensive operations
+- Optimize database queries (avoid N+1 problems)
+- Use pagination for large datasets
+- Monitor query performance and optimize slow queries
+
+**Frontend:**
+- Optimize bundle sizes and use code splitting
+- Implement lazy loading for routes and components
+- Use efficient state management patterns
+- Optimize images and assets
+- Implement proper caching strategies
+
+**Monitoring:**
+- Monitor application performance with APM tools
+- Set up performance alerts for critical metrics
+- Track database performance and query times
+- Monitor memory usage and garbage collection
+- Use performance budgets for builds
+
+**Scalability:**
+- Design for horizontal scaling from the start
+- Use stateless services when possible
+- Implement proper caching layers
+- Use CDN for static assets
+- Plan for database scaling strategies
+
+### Testing
+
+**Coverage Requirements:**
+- ✅ Write tests for all new code
+- ✅ Backend: Unit tests (Jest)
+- ✅ Frontend: Widget tests (Flutter Test)
+- ❌ Frontend: NO end-to-end (e2e) tests
+
+**Test Types:**
+- **Unit tests**: Business logic, services, utilities
+- **Integration tests**: API endpoints, database operations
+- **Widget tests**: UI components, user interactions
+- **Performance tests**: Load testing, benchmarks
+
+---
+
+## ⚖️ Rule Enforcement
+
+### Pre-Development Checklist
+
+**Before starting ANY task:**
+- [ ] Read this `.cursorrules` file
+- [ ] Read `apps/backend/.cursorrules` if working on backend
+- [ ] Read `apps/frontend/.cursorrules` if working on frontend
+- [ ] Understand which rules apply to your task
+
+### During Development
+
+**Decision Making:**
+- Reference rules when making architectural decisions
+- Stop and check if unsure about rule compliance
+- Ask for clarification rather than assume
+- Follow the "answer before act" pattern for complex changes
+
+**Common Violations to Avoid:**
+- ❌ Multiple README.md files (only one at project root)
+- ❌ Numbered documentation files
+- ❌ Business logic in framework code
+- ❌ Skipping documentation updates
+- ❌ Ignoring platform-specific .cursorrules files
+
+### Post-Development Verification
+
+**Before completing ANY task, verify:**
+- [ ] All rules from relevant .cursorrules followed
+- [ ] No README.md violations created
+- [ ] File naming follows conventions
+- [ ] Documentation properly placed and linked
+- [ ] Cross-references updated
+- [ ] Generic framework principles maintained
+- [ ] Tests written and passing
+- [ ] No hardcoded configuration or secrets
+
+### Backend Work Checklist
+
+**When working on backend features/bugs:**
+- [ ] Read `apps/backend/.cursorrules` FIRST
+- [ ] Follow Clean Architecture principles
+- [ ] Use generic terminology (Entity, Tenant, User)
+- [ ] Avoid business-specific logic
+- [ ] Implement proper error handling
+- [ ] Add comprehensive JSDoc comments
+- [ ] Use LoggerService for logging
+- [ ] Write tests for all new code
+- [ ] Follow multi-tenancy patterns
+
+### Adding New Rules
+
+When adding new rules to this framework:
+1. Determine if it's project-wide or platform-specific
+2. Add project-wide rules to this file
+3. Add platform-specific rules to respective `.cursorrules` files
+4. Update relevant sections in existing docs
+5. Test with actual code examples
+6. Keep rules generic and reusable
+
+---
+
+## 📋 Platform-Specific Rules
+
+### Backend (`apps/backend/.cursorrules`)
+
+**Location:** `apps/backend/.cursorrules`
+
+**Critical Rules:**
+- Clean Architecture (Domain → Application → Infrastructure → Presentation)
+- Generic framework design (no business-specific logic)
+- Multi-tenancy patterns
+- Generic terminology (Entity, Tenant, User)
+- Comprehensive testing with Jest
+- LoggerService for all logging
+
+**When to Read:**
+- Before any backend development
+- When creating new backend modules
+- When modifying backend architecture
+- When fixing backend bugs
+
+### Frontend (`apps/frontend/.cursorrules`)
+
+**Location:** `apps/frontend/.cursorrules`
+
+**Critical Rules:**
+- Flutter best practices
+- Widget lifecycle management (dispose() methods)
+- LocalizationHelper for all user-facing text
+- ValueKey for conditional rendering
+- Widget testing (no e2e tests)
+- Generic UI components
+
+**When to Read:**
+- Before any frontend development
+- When creating new widgets/features
+- When modifying frontend architecture
+- When fixing frontend bugs
+
+---
+
+## 🎯 Project Goals
+
+This SaaS framework is designed to be:
+
+1. **🔄 Generic & Reusable**
+   - Adaptable to any business domain (e-commerce, healthcare, education, etc.)
+   - No business-specific logic in framework code
+   - Generic terminology throughout
+
+2. **🏢 Multi-tenant**
+   - Built-in tenant isolation
+   - Secure data segregation
+   - Scalable tenant management
+
+3. **📈 Scalable**
+   - Horizontal scaling architecture
+   - Performance optimized
+   - Database scaling strategies
+
+4. **🧹 Maintainable**
+   - Clean Architecture principles
+   - Comprehensive documentation
+   - High test coverage
+   - Consistent coding standards
+
+5. **📱 Cross-platform**
+   - Mobile (iOS & Android)
+   - Web application
+   - Responsive design
+
+6. **🚀 Production-ready**
+   - Robust error handling
+   - Security best practices
+   - Performance monitoring
+   - CI/CD integration
+
+---
+
+## 📖 Quick Links
+
+- **Main README**: [/README.md](/README.md)
+- **Backend Rules**: [/apps/backend/.cursorrules](/apps/backend/.cursorrules)
+- **Frontend Rules**: [/apps/frontend/.cursorrules](/apps/frontend/.cursorrules)
+- **Documentation**: [/docs](/docs)
+- **Database Schema**: [/docs/database](/docs/database)
+
+---
+
+> **Remember:** Always read the relevant .cursorrules file before starting any task!

@@ -1,0 +1,21 @@
+{
+  "name": "saas-framework-scripts",
+  "version": "1.0.0",
+  "description": "Development and testing scripts for SaaS Framework monorepo",
+  "private": true,
+  "scripts": {
+    "check:framework:backend": "ts-node backend/check-framework-violations.ts",
+    "check:framework:frontend": "ts-node frontend/check-framework-violations.ts",
+    "check:framework:backend:watch": "ts-node backend/check-framework-violations.ts --watch",
+    "check:framework:frontend:watch": "ts-node frontend/check-framework-violations.ts --watch",
+    "check:all": "npm run check:framework:backend && npm run check:framework:frontend"
+  },
+  "devDependencies": {
+    "@types/node": "^20.0.0",
+    "ts-node": "^10.9.0",
+    "typescript": "^5.0.0"
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  }
+}

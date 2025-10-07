@@ -1,0 +1,107 @@
+# Dart test configuration for Flutter framework
+name: generic_framework_app
+
+# Define test tags
+tags:
+  # Test Categories
+  unit:
+    description: "Unit tests (fast, isolated)"
+  integration:
+    description: "Integration tests (medium speed)"
+  widget:
+    description: "Widget tests (UI components)"
+  
+  # Test Types
+  smoke:
+    description: "Smoke tests (critical functionality)"
+  regression:
+    description: "Regression tests"
+  performance:
+    description: "Performance tests"
+  security:
+    description: "Security tests"
+  accessibility:
+    description: "Accessibility tests"
+  
+  # Test Priority
+  critical:
+    description: "Critical functionality"
+  high:
+    description: "High priority"
+  medium:
+    description: "Medium priority"
+  low:
+    description: "Low priority"
+  
+  # Test Scope
+  core:
+    description: "Core framework functionality"
+  feature:
+    description: "Feature-specific tests"
+  ui:
+    description: "UI component tests"
+  api:
+    description: "API integration tests"
+  
+  # Test Environment
+  local:
+    description: "Local development only"
+  ci:
+    description: "CI/CD environment"
+  staging:
+    description: "Staging environment"
+  production:
+    description: "Production environment"
+  
+  # Test Speed
+  fast:
+    description: "Fast tests (< 1 second)"
+  slow:
+    description: "Slow tests (1-10 seconds)"
+  very-slow:
+    description: "Very slow tests (> 10 seconds)"
+  
+  # Test Dependencies
+  network:
+    description: "Requires network connection"
+  database:
+    description: "Requires database"
+  file-system:
+    description: "Requires file system access"
+  external:
+    description: "Requires external services"
+
+# Test configuration
+test_on: vm
+
+# Coverage configuration
+coverage:
+  path: coverage/
+  exclude:
+    - "**/*.g.dart"
+    - "**/*.freezed.dart"
+    - "**/*.mocks.dart"
+    - "**/generated/**"
+    - "**/test/**"
+    - "**/integration_test/**"
+    # Exclude framework implementation files
+    - "lib/core/**"
+    - "lib/ui/**"
+    - "lib/l10n/**"
+    - "lib/main.dart"
+  # Coverage thresholds
+  threshold:
+    global:
+      lines: 85
+      functions: 85
+      branches: 80
+      statements: 85
+
+# Platform configuration
+platforms: [vm]
+
+# Timeout configuration
+timeout: 30s
+
+# Concurrency
+concurrency: 4
